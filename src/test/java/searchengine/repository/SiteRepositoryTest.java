@@ -8,6 +8,7 @@
 //import java.sql.Timestamp;
 //import java.util.Date;
 //import java.util.Optional;
+//
 //import static org.junit.jupiter.api.Assertions.*;
 //
 //@DataJpaTest
@@ -21,7 +22,7 @@
 //        SiteEntity site = new SiteEntity();
 //        site.setName("Test Site");
 //        site.setUrl("https://example.com");
-//        site.setStatusTime((Timestamp) new Date());
+//        site.setStatusTime(new Timestamp(new Date().getTime())); // ✅ FIX
 //
 //        siteRepository.save(site);
 //

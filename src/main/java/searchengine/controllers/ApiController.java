@@ -12,7 +12,7 @@ import searchengine.services.statistics.StatisticsService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v2/search")
 @RequiredArgsConstructor
 public class ApiController {
 
