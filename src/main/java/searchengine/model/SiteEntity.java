@@ -1,17 +1,16 @@
 package searchengine.model;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import lombok.NonNull;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 @NoArgsConstructor
+@RequiredArgsConstructor
 @Entity
 @Table(name = "site", schema = "search_engine")
 public class SiteEntity {
@@ -21,44 +20,34 @@ public class SiteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int siteId;
 
-    @NotNull
-    @Column(columnDefinition = "ENUM('INDEXING', 'INDEXED', 'FAILED')")
+    @NonNull
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('INDEXING', 'INDEXED', 'FAILED')")
     private Status status;
 
-    @NotNull
+    @NonNull
     @Column(name = "status_time")
     private Timestamp statusTime;
 
-    @Basic
     @Column(name = "last_error", columnDefinition = "TEXT")
     private String lastError;
 
-    @NotNull
+    @NonNull
     @Column(columnDefinition = "VARCHAR(255)")
     private String url;
 
-    @NotNull
+    @NonNull
     @Column(columnDefinition = "VARCHAR(255)")
     private String name;
 
-    @OneToMany(mappedBy = "siteEBySiteId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "siteEBySiteId", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Lemma> lemmaBySiteId = new ArrayList<>();
 
-    @OneToMany(mappedBy = "siteEBySiteId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "siteEBySiteId", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Page> pageBySiteId = new ArrayList<>();
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SiteEntity siteEntity = (SiteEntity) o;
-        return siteId == siteEntity.siteId && status == siteEntity.status
-                && statusTime.equals(siteEntity.statusTime) && url.equals(siteEntity.url) && name.equals(siteEntity.name);
-    }
-
-    @Override
     public int hashCode() {
-        return Objects.hash(siteId, status, statusTime, url, name);
+        return getClass().hashCode();
     }
 }

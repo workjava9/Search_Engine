@@ -1,6 +1,5 @@
 package searchengine.model;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -9,64 +8,63 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
-@RequiredArgsConstructor
-@Table(name = "page", schema = "search_engine", indexes = @Index(columnList = "path"))
+@Entity
+@Table(
+        name = "page",
+        schema = "search_engine",
+        indexes = {
+                @Index(name = "idx_page_site_path", columnList = "site_id,path", unique = true)
+        }
+)
 public class Page {
 
     @Id
-    @Column(name = "page_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int pageId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "page_seq")
+    @SequenceGenerator(name = "page_seq", sequenceName = "page_seq")
+    @Column(name = "page_id", nullable = false)
+    private Integer pageId;
 
-    @NotNull
-    @Column(name = "site_id")
-    private int siteId;
-
-    @NotNull
-    @Basic(optional = false)
-    @Column(name = "path", columnDefinition = "VARCHAR(255) NOT NULL")
-    private String path;
-
-    @NotNull
-    @Column(name = "code")
-    private int code;
-
-    @NotNull
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String content;
-
-    @NotNull
-    @Column(name = "title", columnDefinition = "VARCHAR(255)")
-    private String title;
-
-    @ManyToOne
-    @JoinColumn(name = "site_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "site_id", nullable = false)
     private SiteEntity siteEBySiteId;
 
-    @OneToMany(mappedBy = "pageByPageId", cascade = CascadeType.ALL)
+    @Column(name = "path", nullable = false, length = 255)
+    private String path;
+
+    @Column(name = "code", nullable = false)
+    private int code;
+
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @Column(name = "title", nullable = false, length = 255)
+    private String title;
+
+    @OneToMany(
+            mappedBy = "pageByPageId",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     private List<IndexEntity> indexEntityByPageId = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Page page = (Page) o;
-        return pageId == page.pageId && siteId == page.siteId && code == page.code
-                && path.equals(page.path) && content.equals(page.content);
+        if (!(o instanceof Page that)) return false;
+        return pageId != null && pageId.equals(that.pageId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pageId, siteId, path, code, content);
+        return Objects.hash(pageId, siteEBySiteId, path, code, content);
     }
 
     @Override
     public String toString() {
         return "Page{" +
                 "pageId=" + pageId +
-                ", siteId=" + siteId +
+                ", siteId=" + siteEBySiteId +
                 ", path='" + path + '\'' +
                 ", code=" + code +
                 ", content(trim by 100)='" + content.substring(0, 30) + '\'' +
